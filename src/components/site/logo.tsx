@@ -1,40 +1,34 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 /**
- * Alif Baa Logo — reads brand asset from DB if available, otherwise renders the wordmark.
- * Premium educational identity: stylized أ in a navy/cyan badge.
+ * Alif Baa Logo — Client Component
+ *
+ * Pure SVG logo (no DB access) so it can be used inside Client Components.
+ * The DB-backed custom logo is loaded separately via BrandAsset and injected
+ * as a prop by server components (e.g. SiteFooter).
+ *
+ * For client components (e.g. SiteHeader), use this directly — it renders
+ * the default SVG mark + wordmark.
  */
-export async function Logo({
+export function Logo({
   className,
-  variant = "auto",
   showWordmark = true,
   href = "/",
+  logoUrl,
 }: {
   className?: string;
-  variant?: "auto" | "light" | "dark";
   showWordmark?: boolean;
   href?: string | null;
+  logoUrl?: string | null;
 }) {
-  let logoUrl: string | null = null;
-  try {
-    const asset = await db.brandAsset.findUnique({
-      where: {
-        key: variant === "dark" ? "logo_dark" : variant === "light" ? "logo_light" : "logo",
-      },
-    });
-    if (asset?.url) logoUrl = asset.url;
-  } catch {
-    // DB not ready — fall back to default
-  }
-
-  // Use uploaded brand logo as fallback if no DB logo set
-  if (!logoUrl) logoUrl = "/brand/alifbaa-logo.jpeg";
-
   const content = (
     <div className={cn("flex items-center gap-2.5 select-none", className)}>
-      <LogoMark />
+      {logoUrl ? (
+        <img src={logoUrl} alt="ألف باء" className="h-9 w-auto object-contain" />
+      ) : (
+        <LogoMark />
+      )}
       {showWordmark && <LogoText />}
     </div>
   );
@@ -96,5 +90,38 @@ export function LogoText({ className }: { className?: string }) {
         ALIF BAA
       </span>
     </div>
+  );
+}
+
+/**
+ * Async server component version — fetches logo URL from DB.
+ * Use this ONLY in server components (e.g. SiteFooter).
+ */
+export async function AsyncLogo({
+  className,
+  variant = "auto",
+  showWordmark = true,
+  href = "/",
+}: {
+  className?: string;
+  variant?: "auto" | "light" | "dark";
+  showWordmark?: boolean;
+  href?: string | null;
+}) {
+  let logoUrl: string | null = null;
+  try {
+    const { db } = await import("@/lib/db");
+    const asset = await db.brandAsset.findUnique({
+      where: {
+        key: variant === "dark" ? "logo_dark" : variant === "light" ? "logo_light" : "logo",
+      },
+    });
+    if (asset?.url) logoUrl = asset.url;
+  } catch {
+    // DB not ready — fall back to default
+  }
+
+  return (
+    <Logo className={className} showWordmark={showWordmark} href={href} logoUrl={logoUrl} />
   );
 }

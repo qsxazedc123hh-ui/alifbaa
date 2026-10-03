@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Facebook, Instagram, Youtube, Send, Phone, Mail, MessageCircle } from "lucide-react";
-import { Logo } from "./logo";
+import { AsyncLogo } from "./logo";
 import { db } from "@/lib/db";
 
 async function getContactLinks() {
@@ -42,7 +42,7 @@ export async function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <Logo href="/" />
+            <AsyncLogo href="/" />
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">
               {tFooter("about")}
             </p>
