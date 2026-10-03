@@ -1,0 +1,309 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-cairo);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Alif Baa brand tokens */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-forest: var(--forest);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+/* ===================================================================== */
+/* Alif Baa Light Theme                                                  */
+/* ===================================================================== */
+:root {
+  --radius: 0.875rem;
+
+  /* Foundation palette */
+  --brand: oklch(0.55 0.13 165);            /* deep emerald */
+  --brand-foreground: oklch(0.99 0.01 165); /* near-white */
+  --brand-soft: oklch(0.96 0.03 165);       /* mint mist */
+  --gold: oklch(0.78 0.16 80);              /* achievement gold */
+  --gold-soft: oklch(0.96 0.05 80);         /* warm cream-gold */
+  --ink: oklch(0.20 0.02 250);              /* deep navy ink */
+  --cream: oklch(0.985 0.005 80);           /* warm ivory */
+  --forest: oklch(0.42 0.10 165);           /* deep forest accent */
+
+  /* shadcn semantic mapping */
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: oklch(0.96 0.01 165);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.96 0.005 80);
+  --muted-foreground: oklch(0.45 0.01 250);
+  --accent: var(--gold);
+  --accent-foreground: oklch(0.20 0.02 80);
+  --destructive: oklch(0.58 0.24 27);
+  --border: oklch(0.90 0.01 80);
+  --input: oklch(0.90 0.01 80);
+  --ring: var(--brand);
+
+  --chart-1: var(--brand);
+  --chart-2: var(--gold);
+  --chart-3: oklch(0.55 0.10 220);
+  --chart-4: oklch(0.65 0.18 30);
+  --chart-5: var(--forest);
+
+  --sidebar: oklch(0.99 0.005 80);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: oklch(0.95 0.02 165);
+  --sidebar-accent-foreground: var(--brand);
+  --sidebar-border: oklch(0.90 0.01 80);
+  --sidebar-ring: var(--brand);
+}
+
+/* ===================================================================== */
+/* Alif Baa Dark Theme                                                   */
+/* ===================================================================== */
+.dark {
+  --brand: oklch(0.70 0.13 165);
+  --brand-foreground: oklch(0.15 0.02 165);
+  --brand-soft: oklch(0.25 0.04 165);
+  --gold: oklch(0.82 0.15 80);
+  --gold-soft: oklch(0.25 0.04 80);
+  --ink: oklch(0.97 0.005 80);
+  --cream: oklch(0.15 0.01 250);
+  --forest: oklch(0.55 0.10 165);
+
+  --background: oklch(0.15 0.01 250);
+  --foreground: var(--ink);
+  --card: oklch(0.19 0.01 250);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.19 0.01 250);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: oklch(0.24 0.01 250);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.22 0.01 250);
+  --muted-foreground: oklch(0.70 0.01 80);
+  --accent: var(--gold);
+  --accent-foreground: oklch(0.15 0.02 80);
+  --destructive: oklch(0.70 0.19 22);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--brand);
+
+  --chart-1: var(--brand);
+  --chart-2: var(--gold);
+  --chart-3: oklch(0.65 0.12 220);
+  --chart-4: oklch(0.70 0.18 30);
+  --chart-5: var(--forest);
+
+  --sidebar: oklch(0.18 0.01 250);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: oklch(0.25 0.02 165);
+  --sidebar-accent-foreground: var(--brand);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: var(--brand);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01", "cv02";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.80 0.02 165 / 0.4);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.70 0.05 165 / 0.6);
+    background-clip: content-box;
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--ink);
+  }
+}
+
+/* ===================================================================== */
+/* Utility classes                                                        */
+/* ===================================================================== */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, oklch(0 0 0 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0 0 0 / 0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .bg-dots {
+    background-image: radial-gradient(oklch(0 0 0 / 0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .gradient-brand {
+    background-image: linear-gradient(135deg, var(--brand) 0%, var(--forest) 100%);
+  }
+  .gradient-gold {
+    background-image: linear-gradient(135deg, var(--gold) 0%, oklch(0.65 0.18 50) 100%);
+  }
+  .gradient-cream {
+    background-image: linear-gradient(180deg, var(--cream) 0%, oklch(0.96 0.02 80) 100%);
+  }
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px oklch(0 0 0 / 0.04),
+      0 4px 16px oklch(0 0 0 / 0.06);
+  }
+  .shadow-card {
+    box-shadow:
+      0 0 0 1px oklch(0 0 0 / 0.03),
+      0 2px 4px oklch(0 0 0 / 0.04),
+      0 12px 32px oklch(0 0 0 / 0.06);
+  }
+  .shadow-glow {
+    box-shadow: 0 0 0 1px oklch(0 0 0 / 0.04), 0 12px 40px oklch(0.55 0.13 165 / 0.18);
+  }
+  .shadow-gold-glow {
+    box-shadow: 0 0 0 1px oklch(0 78% 0.16 80 / 0.1), 0 12px 40px oklch(0.78 0.16 80 / 0.18);
+  }
+  .glass {
+    background: oklch(1 0 0 / 0.6);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+  }
+  .dark .glass {
+    background: oklch(0.18 0.01 250 / 0.6);
+  }
+  .glass-strong {
+    background: oklch(1 0 0 / 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .dark .glass-strong {
+    background: oklch(0.18 0.01 250 / 0.85);
+  }
+}
+
+/* ===================================================================== */
+/* Animations                                                             */
+/* ===================================================================== */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background: linear-gradient(90deg, transparent, oklch(0 0 0 / 0.04), transparent);
+  background-size: 1000px 100%;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 oklch(0.55 0.13 165 / 0.4); }
+  70% { box-shadow: 0 0 0 12px oklch(0.55 0.13 165 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.55 0.13 165 / 0); }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
