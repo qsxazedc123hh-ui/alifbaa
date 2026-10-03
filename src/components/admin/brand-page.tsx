@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Save, Palette, Type, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Upload, Save, Palette, Type, Image as ImageIcon, Sparkles, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -40,11 +40,42 @@ const LOGO_SLOTS = [
   { key: "favicon", labelAr: "أيقونة الموقع", labelEn: "Favicon" },
 ];
 
+/**
+ * Design Tokens — Color slots that map directly to CSS variables.
+ * Each row is one BrandColor in the DB.
+ * The BrandThemeProvider reads these keys and injects them as :root vars.
+ */
 const COLOR_SLOTS = [
-  { key: "primary", labelAr: "اللون الأساسي", labelEn: "Primary Color" },
-  { key: "secondary", labelAr: "اللون الثانوي", labelEn: "Secondary Color" },
-  { key: "accent", labelAr: "لون التمييز", labelEn: "Accent Color" },
-  { key: "background", labelAr: "لون الخلفية", labelEn: "Background Color" },
+  // Brand tokens
+  {
+    group: "ألوان الهوية (Brand Tokens)",
+    groupEn: "Brand Tokens",
+    keys: [
+      { key: "navy", labelAr: "Navy (أساسي)", default: "#0B1F3A" },
+      { key: "navy_deep", labelAr: "Navy داكن (للتدرجات)", default: "#050E1F" },
+      { key: "navy_soft", labelAr: "Navy فاتح (للخلفيات)", default: "#E2E8F0" },
+      { key: "cyan", labelAr: "Cyan (لون التمييز)", default: "#06B6D4" },
+      { key: "cyan_soft", labelAr: "Cyan فاتح", default: "#ECFEFF" },
+    ],
+  },
+  // Light theme
+  {
+    group: "الوضع الفاتح (Light Theme)",
+    groupEn: "Light Theme",
+    keys: [
+      { key: "background_light", labelAr: "الخلفية (أبيض)", default: "#FFFFFF" },
+      { key: "text_light", labelAr: "النص (Navy)", default: "#0B1F3A" },
+    ],
+  },
+  // Dark theme
+  {
+    group: "الوضع الداكن (Dark Theme)",
+    groupEn: "Dark Theme",
+    keys: [
+      { key: "background_dark", labelAr: "الخلفية (Navy)", default: "#050E1F" },
+      { key: "text_dark", labelAr: "النص (فاتح)", default: "#F0F9FF" },
+    ],
+  },
 ];
 
 const APPEARANCE_SLOTS = [
@@ -84,7 +115,7 @@ export function BrandPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["brand"] });
-      toast.success("تم الحفظ بنجاح");
+      toast.success("تم الحفظ بنجاح — التحديث فوري على الموقع");
     },
     onError: () => toast.error("فشل الحفظ"),
   });
@@ -116,6 +147,10 @@ export function BrandPage() {
       <div>
         <h1 className="font-display font-extrabold text-2xl lg:text-3xl">{t("title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t("subtitle")}</p>
+        <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-cyan-brand/10 border border-cyan-brand/20 px-3 py-1.5 text-xs text-cyan-brand">
+          <Sparkles className="h-3.5 w-3.5" />
+          <span>كل الألوان تعتمد على Design Tokens — التحديث فوري على الموقع بعد الحفظ.</span>
+        </div>
       </div>
 
       {/* Logos */}
@@ -150,7 +185,7 @@ export function BrandPage() {
                       if (f) handleUpload(slot.key, f);
                     }}
                   />
-                  <span className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs font-medium hover:border-primary/40 hover:bg-muted/30 transition-colors">
+                  <span className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs font-medium hover:border-cyan-brand/40 hover:bg-muted/30 transition-colors">
                     <Upload className="h-3.5 w-3.5" />
                     {uploadingKey === slot.key ? "جاري الرفع..." : t("uploadLogo")}
                   </span>
@@ -161,44 +196,120 @@ export function BrandPage() {
         </div>
       </Card>
 
-      {/* Colors */}
+      {/* Colors — Design Tokens */}
+      {COLOR_SLOTS.map(group => (
+        <Card key={group.groupEn} className="p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Palette className="h-5 w-5 text-primary" />
+            <h2 className="font-display font-bold text-lg">{group.group}</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {group.keys.map(slot => {
+              const color = colorMap.get(slot.key);
+              const value = color?.value || slot.default;
+              return (
+                <div key={slot.key} className="rounded-xl border border-border p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs font-semibold">{slot.labelAr}</Label>
+                    <code className="text-[10px] text-muted-foreground font-mono">{slot.key}</code>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="color"
+                      value={value}
+                      onChange={e => {
+                        updateMutation.mutate({ type: "color", key: slot.key, label: slot.labelAr, value: e.target.value });
+                      }}
+                      className="h-10 w-12 rounded-lg border border-border cursor-pointer"
+                    />
+                    <Input
+                      value={value}
+                      onChange={e => {
+                        updateMutation.mutate({ type: "color", key: slot.key, label: slot.labelAr, value: e.target.value });
+                      }}
+                      className="font-mono text-xs"
+                    />
+                  </div>
+                  <div className="h-8 rounded-lg" style={{ backgroundColor: value }} />
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      ))}
+
+      {/* Live Preview */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-5">
-          <Palette className="h-5 w-5 text-primary" />
-          <h2 className="font-display font-bold text-lg">{t("colors")}</h2>
+          <Eye className="h-5 w-5 text-primary" />
+          <h2 className="font-display font-bold text-lg">معاينة حية (Live Preview)</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {COLOR_SLOTS.map(slot => {
-            const color = colorMap.get(slot.key);
-            const value = color?.value || "#0E7C66";
-            return (
-              <div key={slot.key} className="rounded-xl border border-border p-4">
-                <Label className="text-xs font-semibold mb-2 block">{slot.labelAr}</Label>
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="color"
-                    value={value}
-                    onChange={e => {
-                      updateMutation.mutate({ type: "color", key: slot.key, label: slot.labelAr, value: e.target.value });
-                    }}
-                    className="h-10 w-12 rounded-lg border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={value}
-                    onChange={e => {
-                      updateMutation.mutate({ type: "color", key: slot.key, label: slot.labelAr, value: e.target.value });
-                    }}
-                    className="font-mono text-xs"
-                  />
-                </div>
-                <div className="h-8 rounded-lg" style={{ backgroundColor: value }} />
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Light preview */}
+          <div className="rounded-2xl border border-border p-6 bg-white" style={{
+            background: colorMap.get("background_light")?.value || "#FFFFFF",
+            color: colorMap.get("text_light")?.value || "#0B1F3A",
+          }}>
+            <div className="text-xs uppercase tracking-wider opacity-60 mb-2">Light Theme</div>
+            <h3 className="font-display font-extrabold text-xl mb-2">تعليم يبدأ من الأساس</h3>
+            <p className="text-sm opacity-80 mb-4">ألف باء — منصة تعليمية عراقية تجمع الشرح والتفاعل ومتابعة التقدم.</p>
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 rounded-lg text-xs font-semibold"
+                style={{
+                  background: colorMap.get("navy")?.value || "#0B1F3A",
+                  color: "#FFFFFF",
+                }}
+              >
+                Primary (Navy)
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg text-xs font-semibold"
+                style={{
+                  background: colorMap.get("cyan")?.value || "#06B6D4",
+                  color: "#04181C",
+                }}
+              >
+                Accent (Cyan)
+              </button>
+            </div>
+          </div>
+
+          {/* Dark preview */}
+          <div className="rounded-2xl border p-6" style={{
+            background: colorMap.get("background_dark")?.value || "#050E1F",
+            color: colorMap.get("text_dark")?.value || "#F0F9FF",
+            borderColor: "rgba(255,255,255,0.08)",
+          }}>
+            <div className="text-xs uppercase tracking-wider opacity-60 mb-2">Dark Theme (Navy-first)</div>
+            <h3 className="font-display font-extrabold text-xl mb-2">تعليم يبدأ من الأساس</h3>
+            <p className="text-sm opacity-80 mb-4">ألف باء — منصة تعليمية عراقية تجمع الشرح والتفاعل ومتابعة التقدم.</p>
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 rounded-lg text-xs font-semibold"
+                style={{
+                  background: colorMap.get("cyan")?.value || "#06B6D4",
+                  color: "#04181C",
+                }}
+              >
+                Primary (Cyan)
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg text-xs font-semibold border"
+                style={{
+                  background: "transparent",
+                  color: colorMap.get("text_dark")?.value || "#F0F9FF",
+                  borderColor: colorMap.get("cyan")?.value || "#06B6D4",
+                }}
+              >
+                Outline
+              </button>
+            </div>
+          </div>
         </div>
       </Card>
 
-      {/* Appearance */}
+      {/* Appearance settings */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-5">
           <Sparkles className="h-5 w-5 text-primary" />

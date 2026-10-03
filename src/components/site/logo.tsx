@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Alif Baa Logo — reads brand asset from DB if available, otherwise renders the wordmark.
- * Premium educational identity: stylized أ in a soft-rounded badge.
+ * Premium educational identity: stylized أ in a navy/cyan badge.
  */
 export async function Logo({
   className,
@@ -26,20 +26,11 @@ export async function Logo({
     });
     if (asset?.url) logoUrl = asset.url;
   } catch {
-    // DB not ready yet — fall back to wordmark
+    // DB not ready — fall back to default
   }
 
-  if (logoUrl) {
-    const content = (
-      <img
-        src={logoUrl}
-        alt="ألف باء"
-        className={cn("h-9 w-auto object-contain", className)}
-      />
-    );
-    if (!href) return content;
-    return <Link href={href}>{content}</Link>;
-  }
+  // Use uploaded brand logo as fallback if no DB logo set
+  if (!logoUrl) logoUrl = "/brand/alifbaa-logo.jpeg";
 
   const content = (
     <div className={cn("flex items-center gap-2.5 select-none", className)}>
@@ -52,7 +43,10 @@ export async function Logo({
   return <Link href={href}>{content}</Link>;
 }
 
-/** The badge mark — pure SVG so it always renders, even before DB is seeded */
+/**
+ * The badge mark — pure SVG, uses CSS variables (navy + cyan)
+ * so it adapts to whatever brand colors are configured.
+ */
 export function LogoMark({ size = 40 }: { size?: number }) {
   return (
     <svg
@@ -65,26 +59,29 @@ export function LogoMark({ size = 40 }: { size?: number }) {
       className="shrink-0"
     >
       <defs>
-        <linearGradient id="ab-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-          <stop stopColor="oklch(0.55 0.13 165)" />
-          <stop offset="1" stopColor="oklch(0.42 0.10 165)" />
+        <linearGradient id="ab-navy" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="var(--navy)" />
+          <stop offset="1" stopColor="var(--navy-deep)" />
         </linearGradient>
-        <linearGradient id="ab-gold" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
-          <stop stopColor="oklch(0.82 0.15 80)" />
-          <stop offset="1" stopColor="oklch(0.70 0.18 50)" />
+        <linearGradient id="ab-cyan" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
+          <stop stopColor="var(--cyan-brand)" />
+          <stop offset="1" stopColor="var(--cyan-brand)" stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <rect x="2" y="2" width="44" height="44" rx="14" fill="url(#ab-grad)" />
-      <rect x="2" y="2" width="44" height="44" rx="14" stroke="oklch(0.70 0.13 165 / 0.5)" strokeWidth="0.5" />
+      {/* Rounded navy badge */}
+      <rect x="2" y="2" width="44" height="44" rx="14" fill="url(#ab-navy)" />
+      <rect x="2" y="2" width="44" height="44" rx="14" stroke="var(--cyan-brand)" strokeOpacity="0.3" strokeWidth="0.5" />
+      {/* Arabic أ stylized in white */}
       <path
         d="M17 32 L17 18 Q17 14 21 14 L26 14 L26 32 M26 22 L31 22 Q34 22 34 19 Q34 16 31 16"
-        stroke="oklch(0.99 0.01 165)"
+        stroke="var(--navy-foreground)"
         strokeWidth="2.6"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
-      <circle cx="29" cy="32" r="2.4" fill="url(#ab-gold)" />
+      {/* Cyan dot accent — represents باء dot */}
+      <circle cx="29" cy="32" r="2.4" fill="url(#ab-cyan)" />
     </svg>
   );
 }

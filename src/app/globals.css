@@ -39,15 +39,15 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Alif Baa brand tokens */
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
-  --color-brand-soft: var(--brand-soft);
-  --color-gold: var(--gold);
-  --color-gold-soft: var(--gold-soft);
-  --color-ink: var(--ink);
-  --color-cream: var(--cream);
-  --color-forest: var(--forest);
+  /* Alif Baa Brand Tokens (Dynamic — editable from Brand Identity dashboard) */
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-deep: var(--navy-deep);
+  --color-cyan-brand: var(--cyan-brand);
+  --color-cyan-foreground: var(--cyan-foreground);
+  --color-cyan-soft: var(--cyan-soft);
+  --color-cyan-glow: var(--cyan-glow);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -57,103 +57,116 @@
 }
 
 /* ===================================================================== */
-/* Alif Baa Light Theme                                                  */
+/* Alif Baa Design Tokens (Default Values)                              */
+/* These are OVERRIDDEN at runtime by BrandThemeProvider which injects  */
+/* values from the BrandColor table in the database.                    */
 /* ===================================================================== */
 :root {
+  /* === Brand Identity Tokens === */
+  /* Primary: Navy (deep professional blue) */
+  --navy: #0B1F3A;
+  --navy-foreground: #FFFFFF;
+  --navy-soft: #E2E8F0;
+  --navy-deep: #050E1F;
+
+  /* Accent: Cyan (bright, modern, energetic) */
+  --cyan-brand: #06B6D4;
+  --cyan-foreground: #04181C;
+  --cyan-soft: #ECFEFF;
+  --cyan-glow: rgba(6, 182, 212, 0.4);
+
+  /* === Radius === */
   --radius: 0.875rem;
 
-  /* Foundation palette */
-  --brand: oklch(0.55 0.13 165);            /* deep emerald */
-  --brand-foreground: oklch(0.99 0.01 165); /* near-white */
-  --brand-soft: oklch(0.96 0.03 165);       /* mint mist */
-  --gold: oklch(0.78 0.16 80);              /* achievement gold */
-  --gold-soft: oklch(0.96 0.05 80);         /* warm cream-gold */
-  --ink: oklch(0.20 0.02 250);              /* deep navy ink */
-  --cream: oklch(0.985 0.005 80);           /* warm ivory */
-  --forest: oklch(0.42 0.10 165);           /* deep forest accent */
+  /* === LIGHT THEME: White-first + Cyan accent + Navy typography === */
+  --background: #FFFFFF;
+  --foreground: var(--navy);              /* Navy typography */
+  --card: #FFFFFF;
+  --card-foreground: var(--navy);
+  --popover: #FFFFFF;
+  --popover-foreground: var(--navy);
+  --primary: var(--navy);                 /* Primary actions = Navy */
+  --primary-foreground: var(--navy-foreground);
+  --secondary: #F1F5F9;
+  --secondary-foreground: var(--navy);
+  --muted: #F8FAFC;
+  --muted-foreground: #475569;
+  --accent: var(--cyan-brand);            /* Accent = Cyan */
+  --accent-foreground: var(--cyan-foreground);
+  --destructive: #DC2626;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: var(--cyan-brand);              /* Focus ring = Cyan */
 
-  /* shadcn semantic mapping */
-  --background: var(--cream);
-  --foreground: var(--ink);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--ink);
-  --primary: var(--brand);
-  --primary-foreground: var(--brand-foreground);
-  --secondary: oklch(0.96 0.01 165);
-  --secondary-foreground: var(--ink);
-  --muted: oklch(0.96 0.005 80);
-  --muted-foreground: oklch(0.45 0.01 250);
-  --accent: var(--gold);
-  --accent-foreground: oklch(0.20 0.02 80);
-  --destructive: oklch(0.58 0.24 27);
-  --border: oklch(0.90 0.01 80);
-  --input: oklch(0.90 0.01 80);
-  --ring: var(--brand);
+  /* Charts (navy + cyan family) */
+  --chart-1: var(--navy);
+  --chart-2: var(--cyan-brand);
+  --chart-3: #0EA5E9;
+  --chart-4: #3B82F6;
+  --chart-5: #1E3A5F;
 
-  --chart-1: var(--brand);
-  --chart-2: var(--gold);
-  --chart-3: oklch(0.55 0.10 220);
-  --chart-4: oklch(0.65 0.18 30);
-  --chart-5: var(--forest);
-
-  --sidebar: oklch(0.99 0.005 80);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--brand);
-  --sidebar-primary-foreground: var(--brand-foreground);
-  --sidebar-accent: oklch(0.95 0.02 165);
-  --sidebar-accent-foreground: var(--brand);
-  --sidebar-border: oklch(0.90 0.01 80);
-  --sidebar-ring: var(--brand);
+  /* Sidebar (admin) */
+  --sidebar: #F8FAFC;
+  --sidebar-foreground: var(--navy);
+  --sidebar-primary: var(--navy);
+  --sidebar-primary-foreground: var(--navy-foreground);
+  --sidebar-accent: var(--cyan-soft);
+  --sidebar-accent-foreground: var(--navy);
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: var(--cyan-brand);
 }
 
 /* ===================================================================== */
-/* Alif Baa Dark Theme                                                   */
+/* DARK THEME: Navy-first + Cyan accent                                  */
 /* ===================================================================== */
 .dark {
-  --brand: oklch(0.70 0.13 165);
-  --brand-foreground: oklch(0.15 0.02 165);
-  --brand-soft: oklch(0.25 0.04 165);
-  --gold: oklch(0.82 0.15 80);
-  --gold-soft: oklch(0.25 0.04 80);
-  --ink: oklch(0.97 0.005 80);
-  --cream: oklch(0.15 0.01 250);
-  --forest: oklch(0.55 0.10 165);
+  /* Brand tokens (slightly brighter in dark for contrast) */
+  --navy: #1E3A5F;                        /* Lighter navy for dark UI elements */
+  --navy-foreground: #FFFFFF;
+  --navy-soft: #1E3A5F;
+  --navy-deep: #050E1F;
 
-  --background: oklch(0.15 0.01 250);
-  --foreground: var(--ink);
-  --card: oklch(0.19 0.01 250);
-  --card-foreground: var(--ink);
-  --popover: oklch(0.19 0.01 250);
-  --popover-foreground: var(--ink);
-  --primary: var(--brand);
-  --primary-foreground: var(--brand-foreground);
-  --secondary: oklch(0.24 0.01 250);
-  --secondary-foreground: var(--ink);
-  --muted: oklch(0.22 0.01 250);
-  --muted-foreground: oklch(0.70 0.01 80);
-  --accent: var(--gold);
-  --accent-foreground: oklch(0.15 0.02 80);
-  --destructive: oklch(0.70 0.19 22);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: var(--brand);
+  --cyan-brand: #22D3EE;                  /* Brighter cyan in dark mode */
+  --cyan-foreground: #04181C;
+  --cyan-soft: rgba(34, 211, 238, 0.1);
+  --cyan-glow: rgba(34, 211, 238, 0.5);
 
-  --chart-1: var(--brand);
-  --chart-2: var(--gold);
-  --chart-3: oklch(0.65 0.12 220);
-  --chart-4: oklch(0.70 0.18 30);
-  --chart-5: var(--forest);
+  /* Navy-first dark theme */
+  --background: #050E1F;                  /* Deep navy background */
+  --foreground: #F0F9FF;                  /* Near-white (slight cyan tint) */
+  --card: #0B1F3A;                        /* Navy card */
+  --card-foreground: #F0F9FF;
+  --popover: #0B1F3A;
+  --popover-foreground: #F0F9FF;
+  --primary: var(--cyan-brand);           /* Primary actions = Cyan in dark */
+  --primary-foreground: var(--cyan-foreground);
+  --secondary: #142D54;                   /* Lighter navy */
+  --secondary-foreground: #F0F9FF;
+  --muted: #0F2542;                       /* Slightly lighter than bg */
+  --muted-foreground: #94A3B8;
+  --accent: var(--cyan-brand);
+  --accent-foreground: var(--cyan-foreground);
+  --destructive: #EF4444;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: var(--cyan-brand);
 
-  --sidebar: oklch(0.18 0.01 250);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--brand);
-  --sidebar-primary-foreground: var(--brand-foreground);
-  --sidebar-accent: oklch(0.25 0.02 165);
-  --sidebar-accent-foreground: var(--brand);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: var(--brand);
+  /* Charts */
+  --chart-1: var(--cyan-brand);
+  --chart-2: #3B82F6;
+  --chart-3: #0EA5E9;
+  --chart-4: #818CF8;
+  --chart-5: #22D3EE;
+
+  /* Sidebar (admin) - dark navy */
+  --sidebar: #0B1F3A;
+  --sidebar-foreground: #F0F9FF;
+  --sidebar-primary: var(--cyan-brand);
+  --sidebar-primary-foreground: var(--cyan-foreground);
+  --sidebar-accent: rgba(34, 211, 238, 0.1);
+  --sidebar-accent-foreground: var(--cyan-brand);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: var(--cyan-brand);
 }
 
 @layer base {
@@ -169,7 +182,7 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  /* Custom scrollbar */
+  /* Custom scrollbar — Navy/Cyan themed */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -178,20 +191,28 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.80 0.02 165 / 0.4);
+    background: var(--navy-soft);
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(34, 211, 238, 0.2);
+    background-clip: content-box;
+  }
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.70 0.05 165 / 0.6);
+    background: var(--cyan-brand);
     background-clip: content-box;
   }
 
-  /* Selection */
+  /* Selection — cyan highlight */
   ::selection {
-    background: var(--brand-soft);
-    color: var(--ink);
+    background: var(--cyan-soft);
+    color: var(--navy);
+  }
+  .dark ::selection {
+    background: var(--cyan-glow);
+    color: var(--cyan-brand);
   }
 }
 
@@ -199,63 +220,87 @@
 /* Utility classes                                                        */
 /* ===================================================================== */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  .text-pretty {
-    text-wrap: pretty;
-  }
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
   .bg-grid {
     background-image:
-      linear-gradient(to right, oklch(0 0 0 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(0 0 0 / 0.04) 1px, transparent 1px);
+      linear-gradient(to right, color-mix(in srgb, var(--navy) 4%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--navy) 4%, transparent) 1px, transparent 1px);
     background-size: 32px 32px;
   }
+  .dark .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  }
   .bg-dots {
-    background-image: radial-gradient(oklch(0 0 0 / 0.06) 1px, transparent 1px);
+    background-image: radial-gradient(color-mix(in srgb, var(--navy) 6%, transparent) 1px, transparent 1px);
     background-size: 20px 20px;
   }
-  .gradient-brand {
-    background-image: linear-gradient(135deg, var(--brand) 0%, var(--forest) 100%);
+  .dark .bg-dots {
+    background-image: radial-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px);
   }
-  .gradient-gold {
-    background-image: linear-gradient(135deg, var(--gold) 0%, oklch(0.65 0.18 50) 100%);
+
+  /* Brand gradients */
+  .gradient-brand {
+    background-image: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+  }
+  .gradient-cyan {
+    background-image: linear-gradient(135deg, var(--cyan-brand) 0%, color-mix(in srgb, var(--cyan-brand) 70%, var(--navy)) 100%);
+  }
+  .gradient-hero {
+    background-image:
+      radial-gradient(ellipse at top right, color-mix(in srgb, var(--cyan-brand) 12%, transparent), transparent 50%),
+      radial-gradient(ellipse at bottom left, color-mix(in srgb, var(--navy) 8%, transparent), transparent 50%);
   }
   .gradient-cream {
-    background-image: linear-gradient(180deg, var(--cream) 0%, oklch(0.96 0.02 80) 100%);
+    background-image: linear-gradient(180deg, var(--background) 0%, color-mix(in srgb, var(--cyan-soft) 30%, var(--background)) 100%);
   }
+
+  /* Shadows — subtle, premium */
   .shadow-soft {
     box-shadow:
-      0 1px 2px oklch(0 0 0 / 0.04),
-      0 4px 16px oklch(0 0 0 / 0.06);
+      0 1px 2px color-mix(in srgb, var(--navy) 4%, transparent),
+      0 4px 16px color-mix(in srgb, var(--navy) 6%, transparent);
   }
   .shadow-card {
     box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.03),
-      0 2px 4px oklch(0 0 0 / 0.04),
-      0 12px 32px oklch(0 0 0 / 0.06);
+      0 0 0 1px color-mix(in srgb, var(--navy) 3%, transparent),
+      0 2px 4px color-mix(in srgb, var(--navy) 4%, transparent),
+      0 12px 32px color-mix(in srgb, var(--navy) 6%, transparent);
   }
   .shadow-glow {
-    box-shadow: 0 0 0 1px oklch(0 0 0 / 0.04), 0 12px 40px oklch(0.55 0.13 165 / 0.18);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--navy) 4%, transparent),
+      0 12px 40px var(--cyan-glow);
   }
-  .shadow-gold-glow {
-    box-shadow: 0 0 0 1px oklch(0 78% 0.16 80 / 0.1), 0 12px 40px oklch(0.78 0.16 80 / 0.18);
+  .shadow-navy {
+    box-shadow:
+      0 12px 40px color-mix(in srgb, var(--navy) 25%, transparent);
   }
+
+  /* Glass effect — navy/cyan themed */
   .glass {
-    background: oklch(1 0 0 / 0.6);
+    background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(14px) saturate(180%);
     -webkit-backdrop-filter: blur(14px) saturate(180%);
   }
   .dark .glass {
-    background: oklch(0.18 0.01 250 / 0.6);
+    background: rgba(11, 31, 58, 0.6);
   }
   .glass-strong {
-    background: oklch(1 0 0 / 0.85);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
   .dark .glass-strong {
-    background: oklch(0.18 0.01 250 / 0.85);
+    background: rgba(11, 31, 58, 0.85);
+  }
+
+  /* Cyan glow text */
+  .text-glow-cyan {
+    text-shadow: 0 0 24px var(--cyan-glow);
   }
 }
 
@@ -268,7 +313,7 @@
 }
 .animate-shimmer {
   animation: shimmer 2s linear infinite;
-  background: linear-gradient(90deg, transparent, oklch(0 0 0 / 0.04), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cyan-brand) 8%, transparent), transparent);
   background-size: 1000px 100%;
 }
 
@@ -281,9 +326,9 @@
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 oklch(0.55 0.13 165 / 0.4); }
-  70% { box-shadow: 0 0 0 12px oklch(0.55 0.13 165 / 0); }
-  100% { box-shadow: 0 0 0 0 oklch(0.55 0.13 165 / 0); }
+  0% { box-shadow: 0 0 0 0 var(--cyan-glow); }
+  70% { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 .animate-pulse-ring {
   animation: pulse-ring 2s infinite;

@@ -1,6 +1,6 @@
 /**
- * Alif Baa — Initial Seed Script
- * Creates the default super admin and seeds default homepage sections.
+ * Alif Baa — Initial Seed Script (Navy + Cyan Edition)
+ * Creates the default super admin and seeds default brand tokens.
  * Run via: bun run /home/z/my-project/scripts/seed.ts
  */
 import { hash } from "bcryptjs";
@@ -9,7 +9,7 @@ import { PrismaClient } from "@prisma/client";
 const db = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding Alif Baa database...");
+  console.log("🌱 Seeding Alif Baa database (Navy + Cyan theme)...");
 
   // 1. Create super admin if missing
   const existing = await db.adminUser.findUnique({
@@ -58,21 +58,29 @@ async function main() {
   }
   console.log(`✅ Seeded ${defaultSections.length} homepage sections`);
 
-  // 3. Seed default brand colors
-  const defaultColors = [
-    { key: "primary", label: "Primary", value: "#0E7C66" },
-    { key: "secondary", label: "Secondary", value: "#0F1B2D" },
-    { key: "accent", label: "Accent", value: "#E8A317" },
-    { key: "background", label: "Background", value: "#FAF8F4" },
+  // 3. Seed Brand Identity Design Tokens (Navy + Cyan system)
+  const brandColors = [
+    // Brand tokens
+    { key: "navy", label: "Navy (Primary)", value: "#0B1F3A" },
+    { key: "navy_deep", label: "Navy Deep (Gradients)", value: "#050E1F" },
+    { key: "navy_soft", label: "Navy Soft (Backgrounds)", value: "#E2E8F0" },
+    { key: "cyan", label: "Cyan (Accent)", value: "#06B6D4" },
+    { key: "cyan_soft", label: "Cyan Soft", value: "#ECFEFF" },
+    // Light theme
+    { key: "background_light", label: "Light Background (White)", value: "#FFFFFF" },
+    { key: "text_light", label: "Light Text (Navy)", value: "#0B1F3A" },
+    // Dark theme
+    { key: "background_dark", label: "Dark Background (Navy)", value: "#050E1F" },
+    { key: "text_dark", label: "Dark Text (Light)", value: "#F0F9FF" },
   ];
-  for (const c of defaultColors) {
+  for (const c of brandColors) {
     await db.brandColor.upsert({
       where: { key: c.key },
-      update: {},
+      update: { value: c.value }, // Update value to ensure latest defaults
       create: c,
     });
   }
-  console.log(`✅ Seeded ${defaultColors.length} brand colors`);
+  console.log(`✅ Seeded ${brandColors.length} brand design tokens (Navy + Cyan)`);
 
   // 4. Seed default contact settings
   const defaultContact = [
@@ -128,6 +136,10 @@ async function main() {
   console.log(`✅ Seeded ${defaultSeo.length} SEO settings`);
 
   console.log("\n🎉 Seed complete!");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("🎨 Design System: Navy (#0B1F3A) + Cyan (#06B6D4)");
+  console.log("🌙 Dark Theme: Navy-first + Cyan accent");
+  console.log("☀️ Light Theme: White-first + Cyan accent + Navy typography");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("🔐 Admin Login:");
   console.log("   Email: admin@alifbaa.edu");

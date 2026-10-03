@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
+import { BrandThemeLoader } from "@/components/site/brand-theme-loader";
 import { NextIntlClientProvider } from "next-intl";
 import { cookies } from "next/headers";
 import { defaultLocale, locales, type Locale } from "@/i18n/routing";
@@ -55,6 +56,7 @@ export default async function RootLayout({
       <body
         className={`${cairo.variable} ${jakarta.variable} ${mono.variable} font-sans antialiased`}
       >
+        <BrandThemeLoader />
         <NextIntlClientProvider locale={locale} messages={messages[locale]}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
