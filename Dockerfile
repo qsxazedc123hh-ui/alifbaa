@@ -14,8 +14,12 @@ RUN bun run db:generate
 # Build
 RUN bun run build
 
+# Create directories for persistent data
+RUN mkdir -p /app/db /app/public/uploads
+
 # Expose port
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 EXPOSE 3000
 
 # Start
