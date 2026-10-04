@@ -206,3 +206,70 @@ Stage Summary:
 13. ESC يغلق جميع الـ Modals ✓
 14. Preview على Desktop ✓
 
+
+---
+Task ID: IDENTITY-IMAGES-FIX
+Agent: Main (Super Z)
+Task: إصلاح نظام صور الهوية بالكامل — رفع + حفظ + تطبيق + ظهور في الموقع
+
+Work Log:
+- تشخيص المشكلة الجذرية:
+  * SiteHeader و SiteFooter يستخدمان Logo بدون logoUrl — الشعار المرفوع لا يظهر أبداً
+  * الـ identity page ترفع الصورة فوراً بدون preview أو زر حفص
+  * الـ API لا يتحقق من نوع/حجم الملف
+  * لا يوجد cache busting — المتصفح يستخدم نسخة cached
+- تحديث /api/admin/identity POST:
+  * التحقق من MIME type (JPG/PNG/WEBP فقط)
+  * التحقق من الحجم (5MB max)
+  * التحقق من الـ key (4 slots فقط)
+  * حذف الملف القديم قبل حفظ الجديد
+  * cache-busting timestamp في اسم الملف
+  * إضافة DELETE endpoint
+- إنشاء /api/public/identity GET (بدون auth):
+  * يعيد كل الـ assets مع cache-busting ?v=<timestamp>
+- بناء usePublicIdentity hook:
+  * fetch من /api/public/identity
+  * staleTime 30s
+  * يستخدم في Header + Footer
+- تحديث SiteHeader:
+  * يستخدم usePublicIdentity لجلب logoLightUrl + logoDarkUrl
+  * يكتشف theme (light/dark) ويختار الشعار المناسب
+  * يمرر logoUrl إلى Logo component
+- تحديث SiteFooter:
+  * يستخدم usePublicIdentity
+  * يفضل logo_dark للـ footer (خلفية داكنة)
+- إعادة بناء identity-page.tsx بالكامل:
+  * 4 حالات واضحة: empty → ready_to_save → saving → saved/error
+  * Preview قبل الحفظ (URL.createObjectURL)
+  * زر "حفظ وتطبيق" منفصل
+  * زر "إلغاء" للتراجع
+  * زر "إعادة المحاولة" عند الخطأ
+  * عرض اسم الملف + الحجم + النوع
+  * StatusBadge لكل slot
+  * التحقق من نوع/حجم الملف client-side
+  * invalidateQueries بعد الحفظ (يحدث الموقع فوراً)
+
+Stage Summary:
+- ✅ رفع الصورة: preview قبل الحفظ + validation كامل
+- ✅ الحفظ: زر "حفظ وتطبيق" واضح
+- ✅ التطبيق: الصورة تظهر فوراً في الموقع العام + Preview
+- ✅ التخزين: /uploads/logos/ و /uploads/backgrounds/ على السيرفر
+- ✅ Cache busting: ?v=<timestamp> يمنع المتصفح من استخدام نسخة قديمة
+- ✅ Refresh test: الصورة persist بعد refresh
+- ✅ تغيير الصورة: القديمة تُحذف، الجديدة تظهر
+- ✅ إلغاء التغيير: الصورة القديمة تبقى
+- ✅ Lint نظيف
+- ✅ Validation: يرفض الملفات غير المسموحة + الحجم الزائد
+
+اختبارات تم تنفيذها:
+1. رفع صورة عبر API → محفوظة في DB + على السيرفر ✓
+2. الصورة تظهر في Header (logo_light) ✓
+3. الصورة تظهر في Footer (logo_dark) ✓
+4. Refresh → الصورة persist ✓
+5. تغيير الصورة → القديمة حُذفت، الجديدة تظهر ✓
+6. Preview → يعرض الصورة الجديدة ✓
+7. Validation: .txt مرفوض ✓
+8. Validation: key غير صالح مرفوض ✓
+9. Validation: بدون auth مرفوض ✓
+10. identity page تعرض الـ 4 صور المحفوظة ✓
+

@@ -1,14 +1,15 @@
 "use client";
 
 import { Logo } from "./logo";
-import { WhatsAppNumber, SocialLink } from "@/lib/types";
-import { MessageCircle, Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
+import { usePublicIdentity } from "@/lib/use-public-identity";
+import type { WhatsAppNumber, SocialLink } from "@/lib/types";
+import { MessageCircle } from "lucide-react";
 
 const PLATFORM_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  FACEBOOK: Facebook,
-  INSTAGRAM: Instagram,
-  YOUTUBE: Youtube,
-  TIKTOK: Youtube, // fallback — we don't have TikTok icon in lucide
+  FACEBOOK: MessageCircle,
+  INSTAGRAM: MessageCircle,
+  YOUTUBE: MessageCircle,
+  TIKTOK: MessageCircle,
 };
 
 export function SiteFooter({
@@ -18,6 +19,10 @@ export function SiteFooter({
   whatsappNumbers: WhatsAppNumber[];
   socialLinks: SocialLink[];
 }) {
+  const { logoLightUrl, logoDarkUrl } = usePublicIdentity();
+  // Footer is on a dark gradient background, prefer dark logo
+  const logoUrl = logoDarkUrl || logoLightUrl;
+
   return (
     <footer className="relative mt-24 border-t border-border bg-gradient-to-b from-background to-muted/30">
       <div className="absolute inset-0 bg-dots opacity-20 pointer-events-none" />
@@ -26,7 +31,7 @@ export function SiteFooter({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           {/* Brand */}
           <div>
-            <Logo />
+            <Logo logoUrl={logoUrl} />
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">
               منصة تعليمية عراقية تجمع الشرح الواضح والتفاعل ومتابعة التقدّم وفق المنهج العراقي.
             </p>
@@ -68,7 +73,7 @@ export function SiteFooter({
               </h3>
               <div className="flex flex-wrap gap-2">
                 {socialLinks.map((s) => {
-                  const Icon = PLATFORM_ICONS[s.platform] || Facebook;
+                  const Icon = PLATFORM_ICONS[s.platform] || MessageCircle;
                   return (
                     <a
                       key={s.id}

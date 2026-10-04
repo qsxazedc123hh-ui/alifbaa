@@ -1,21 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
+import { usePublicIdentity } from "@/lib/use-public-identity";
 
 /**
- * Site Header — رسمي + Mobile-First
+ * SiteHeader — رسمي + Mobile-First
  * - شعار ألف باء + الاسم + الشعار النصي
  * - لا يوجد زر لغة (العربية فقط)
  * - لا يوجد Profile/Avatar
  * - لا يوجد Theme Toggle ظاهر (يتبع إعداد الجهاز)
  * - على الموبايل: تصغير ذكي بدون ازدحام
+ * - يستخدم الشعار المرفوع من الإدارة (إن وُجد)
  */
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const { logoLightUrl, logoDarkUrl } = usePublicIdentity();
+
+  // Detect current theme (light/dark) to pick the right logo
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const checkDark = () => setIsDark(document.documentElement.classList.contains("dark"));
+    checkDark();
+    // Watch for class changes on <html>
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Pick logo based on theme
+  const logoUrl = isDark ? (logoDarkUrl || logoLightUrl) : (logoLightUrl || logoDarkUrl);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -35,7 +49,7 @@ export function SiteHeader() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 sm:h-16 lg:h-20 items-center justify-between gap-3">
           {/* Logo + Name + Tagline */}
-          <Logo href="#campus" showWordmark={true} />
+          <Logo href="#campus" showWordmark={true} logoUrl={logoUrl} />
 
           {/* Tagline (desktop only — hidden on mobile to avoid clutter) */}
           <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-cyan-brand tracking-wide">
