@@ -86,6 +86,22 @@ async function main() {
     console.log("✅ WhatsApp number created");
   }
 
+  // 6. Brand Assets (identity images) — only if not already set
+  const brandAssets = [
+    { key: "logo_light", label: "شعار فاتح", url: "/uploads/logos/logo_light-1791094399947.jpeg" },
+    { key: "logo_dark", label: "شعار داكن", url: "/uploads/logos/logo_dark-1791094449403.jpeg" },
+    { key: "bg_light", label: "خلفية فاتحة", url: "/uploads/backgrounds/bg_light-1791094430491.jpeg" },
+    { key: "bg_dark", label: "خلفية داكنة", url: "/uploads/backgrounds/bg_dark-1791094439369.jpeg" },
+    { key: "homepage_center", label: "شعار واجهة الصفحة الرئيسية", url: "/uploads/logos/homepage_center-1791095506371.jpeg" },
+  ];
+  for (const a of brandAssets) {
+    const exists = await db.brandAsset.findUnique({ where: { key: a.key } });
+    if (!exists) {
+      await db.brandAsset.create({ data: a });
+      console.log(`✅ Brand asset created: ${a.key}`);
+    }
+  }
+
   console.log("🎉 Seed complete!");
 }
 
