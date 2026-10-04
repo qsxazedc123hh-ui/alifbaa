@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && cp -r db .next/standalone/",
+    "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && cp -r db .next/standalone/ && cp -r node_modules/.prisma .next/standalone/node_modules/ && cp -r node_modules/@prisma .next/standalone/node_modules/ && cp -r node_modules/bcryptjs .next/standalone/node_modules/",
     "start": "bun run scripts/startup-seed.ts && NODE_ENV=production bun .next/standalone/server.js",
     "lint": "eslint .",
     "db:push": "prisma db push --accept-data-loss",
