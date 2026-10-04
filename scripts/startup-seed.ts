@@ -1,15 +1,24 @@
 /**
  * Alif Baa — Startup Seed Script
  * Runs on every Railway deployment to ensure default data exists.
- * Safe to run multiple times (uses upsert / checks existence).
  */
 import { hash } from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+
+// Force the database path
+const DB_PATH = "/app/db/custom.db";
+process.env.DATABASE_URL = `file:${DB_PATH}`;
+
+console.log("🌱 Starting seed with DATABASE_URL:", process.env.DATABASE_URL);
 
 const db = new PrismaClient();
 
 async function main() {
   console.log("🌱 Running startup seed...");
+
+  // 0. Test DB connection
+  const adminCount = await db.adminUser.count();
+  console.log("📊 Current admin count:", adminCount);
 
   // 1. Admin user
   const existingAdmin = await db.adminUser.findFirst();
@@ -30,7 +39,7 @@ async function main() {
     console.log("ℹ️  Admin exists");
   }
 
-  // 2. Campus Items (default 6 items)
+  // 2. Campus Items
   const defaultItems = [
     { key: "smart_battle", label: "صراع الأذكياء", iconKey: "smart_battle", sectionKey: "smart_battle", order: 0, visible: true, inBottomNav: true, bottomNavOrder: 0 },
     { key: "videos", label: "الفيديوهات", iconKey: "videos", sectionKey: "videos", order: 1, visible: true, inBottomNav: true, bottomNavOrder: 1 },
@@ -46,7 +55,8 @@ async function main() {
       create: item,
     });
   }
-  console.log(`✅ ${defaultItems.length} campus items ensured`);
+  const itemCount = await db.campusItem.count();
+  console.log(`✅ Campus items ensured (${itemCount} total)`);
 
   // 3. Campus Background
   const bgExists = await db.campusBackground.findFirst();
@@ -75,7 +85,7 @@ async function main() {
       await db.socialLink.create({ data: s });
     }
   }
-  console.log(`✅ ${socialDefaults.length} social links ensured`);
+  console.log(`✅ Social links ensured`);
 
   // 5. WhatsApp default
   const waExists = await db.whatsAppNumber.findFirst();
@@ -86,7 +96,7 @@ async function main() {
     console.log("✅ WhatsApp number created");
   }
 
-  // 6. Brand Assets (identity images) — only if not already set
+  // 6. Brand Assets
   const brandAssets = [
     { key: "logo_light", label: "شعار فاتح", url: "/uploads/logos/logo_light-1791094399947.jpeg" },
     { key: "logo_dark", label: "شعار داكن", url: "/uploads/logos/logo_dark-1791094449403.jpeg" },
@@ -102,13 +112,16 @@ async function main() {
     }
   }
 
+  // Final count
+  const campusCount = await db.campusItem.count();
+  const brandCount = await db.brandAsset.count();
+  console.log(`📊 Final counts - Campus: ${campusCount}, Brand: ${brandCount}`);
   console.log("🎉 Seed complete!");
 }
 
 main()
   .catch((e) => {
     console.error("❌ Seed failed:", e);
-    // Don't exit with error code — let the app start anyway
   })
   .finally(async () => {
     await db.$disconnect();
