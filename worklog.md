@@ -153,3 +153,56 @@ Stage Summary:
 - ✅ جميع الصفحات 200 OK
 - ✅ VLM أكد: تصميم احترافي 9/10، Navy+Cyan مطبق بدقة
 - بيانات الدخول: admin@alifbaa.edu / admin123
+
+---
+Task ID: BACK-NAV-PREVIEW-FIX
+Agent: Main (Super Z)
+Task: إصلاح Back Navigation + تنفيذ Preview Mode فعلياً
+
+Work Log:
+- مراجعة شاملة لـ admin-shell.tsx و preview-page.tsx و home-page.tsx
+- بناء AdminNavigationContext جديد لتتبع آخر صفحة admin فعلية:
+  * يحفظ history stack في sessionStorage
+  * يتعامل مع popstate events
+  * يوفر previewReferrer للعودة من المعاينة
+- تحديث AdminShell:
+  * Back button يستخدم navigation context (router.back + fallback to /admin)
+  * تتبع كل تغيير pathname وحفظه في history
+  * إغلاق mobile drawer تلقائياً عند تغيير المسار
+  * دعم ESC لإغلاق mobile drawer
+  * Preview button يحفظ الـ referrer قبل فتح المعاينة
+- تحديث PreviewPage:
+  * استخدام previewReferrer من context للعودة لنفس صفحة الإدارة
+  * ESC key يخرج من المعاينة
+  * زر عائم + banner قابل للإظهار/الإخفاء
+  * يستخدم HomePage بـ previewMode={true} (لا splash، لا long-press)
+- تأمين /admin/preview بـ auth guard server-side
+- التحقق من جميع الـ Modals/Dialogs (shadcn/ui Dialog يدعم Close button + ESC تلقائياً)
+
+Stage Summary:
+- ✅ Back Navigation يعمل: Dashboard → أي قسم → رجوع يعيد للـ Dashboard
+- ✅ Browser Back مدعوم
+- ✅ جميع الـ Modals تحتوي على Close button + ESC
+- ✅ Preview Mode يفتح الموقع العام الحقيقي (HomePage)
+- ✅ العودة من Preview تعيد لنفس صفحة الإدارة (previewReferrer)
+- ✅ Preview لا يعرض Splash أو LongPressAdmin
+- ✅ Preview محمي بـ auth
+- ✅ Lint نظيف
+- ✅ جميع المسارات الـ14 تعمل
+
+اختبارات تم تنفيذها:
+1. Dashboard → الهوية → رجوع ✓ (يعود للـ Dashboard)
+2. Dashboard → Campus → رجوع ✓
+3. Dashboard → الفيديوهات → فتح Dialog → Close → رجوع ✓
+4. Dashboard → الأخبار → فتح Dialog → ESC → رجوع ✓
+5. Dashboard → تحميل التطبيق → فتح Dialog → Close ✓
+6. Dashboard → WhatsApp → فتح Dialog → ESC ✓
+7. Dashboard → الروابط → فتح Dialog → ESC ✓
+8. Dashboard → الرسائل → فتح رسالة → Close ✓
+9. Dashboard → المحذوفات → رجوع ✓
+10. Dashboard → الأمان → رجوع ✓
+11. Dashboard → معاينة الموقع → تصفح → رجوع ✓ (يعود لنفس الصفحة)
+12. Browser Back من أي صفحة ✓
+13. ESC يغلق جميع الـ Modals ✓
+14. Preview على Desktop ✓
+

@@ -44,6 +44,8 @@ interface HomePageProps {
   whatsappNumbers: WhatsAppNumber[];
   socialLinks: SocialLink[];
   featuredVideos: Video[];
+  /** Preview mode — disables Splash, LongPressAdmin, and URL hash management */
+  previewMode?: boolean;
 }
 
 export function HomePage({
@@ -56,6 +58,7 @@ export function HomePage({
   whatsappNumbers,
   socialLinks,
   featuredVideos,
+  previewMode = false,
 }: HomePageProps) {
   const [activeSection, setActiveSection] = useState<SectionKey>("campus");
 
@@ -70,8 +73,9 @@ export function HomePage({
     navigateTo("download");
   }, [navigateTo]);
 
-  // Listen to hash changes for back button behavior
+  // Listen to hash changes for back button behavior (skip in preview mode)
   useEffect(() => {
+    if (previewMode) return;
     const onPop = () => {
       const hash = window.location.hash.replace("#", "") as SectionKey;
       if (hash && ["campus", "smart_battle", "videos", "news", "about", "download", "contact"].includes(hash)) {
@@ -82,21 +86,23 @@ export function HomePage({
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, []);
+  }, [previewMode]);
 
-  // Update URL hash when section changes (for back button)
+  // Update URL hash when section changes (for back button) — skip in preview
   useEffect(() => {
+    if (previewMode) return;
     if (activeSection !== "campus") {
       window.history.pushState(null, "", `#${activeSection}`);
     } else if (window.location.hash) {
       window.history.pushState(null, "", window.location.pathname);
     }
-  }, [activeSection]);
+  }, [activeSection, previewMode]);
 
   return (
     <>
-      <SplashScreen />
-      <LongPressAdminTrigger />
+      {/* Splash + LongPress admin only on public site, NOT in preview */}
+      {!previewMode && <SplashScreen />}
+      {!previewMode && <LongPressAdminTrigger />}
       <SiteHeader />
 
       <main className="min-h-screen">

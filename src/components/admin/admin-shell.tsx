@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,10 +21,15 @@ import {
   LogOut,
   Menu,
   X,
+  Eye,
 } from "lucide-react";
 import { LogoMark } from "@/components/site/logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  AdminNavigationProvider,
+  useAdminNavigation,
+} from "./admin-navigation-context";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "الرئيسية", icon: LayoutDashboard },
@@ -41,12 +46,29 @@ const NAV_ITEMS = [
   { href: "/admin/security", label: "الأمان", icon: Shield },
 ] as const;
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+const SECTION_TITLES: Record<string, string> = {
+  "/admin": "الرئيسية",
+  "/admin/identity": "الهوية",
+  "/admin/campus": "Campus",
+  "/admin/videos": "الفيديوهات",
+  "/admin/news": "الأخبار",
+  "/admin/smart-battle": "صراع الأذكياء",
+  "/admin/download": "تحميل التطبيق",
+  "/admin/whatsapp": "واتساب",
+  "/admin/social": "روابط التواصل",
+  "/admin/messages": "الرسائل",
+  "/admin/trash": "المحذوفات",
+  "/admin/security": "الأمان",
+};
+
+function AdminShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { pushPath, goBack, setPreviewReferrer, canGoBack } = useAdminNavigation();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Verify auth on mount and on route change
   useEffect(() => {
     fetch("/api/admin/verify", { credentials: "include" })
       .then((r) => {
@@ -62,6 +84,42 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         setAuthed(false);
       });
   }, [router]);
+
+  // Track navigation — push each admin path to the navigation context
+  useEffect(() => {
+    if (authed && pathname && pathname.startsWith("/admin") && pathname !== "/admin/preview") {
+      pushPath(pathname);
+    }
+  }, [pathname, authed, pushPath]);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // ESC key closes mobile drawer
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    goBack();
+  }, [goBack]);
+
+  const handleOpenPreview = useCallback(() => {
+    // Save current admin path as referrer so preview can return to it
+    if (pathname && pathname.startsWith("/admin") && pathname !== "/admin/preview") {
+      setPreviewReferrer(pathname);
+    } else {
+      setPreviewReferrer("/admin");
+    }
+    router.push("/admin/preview");
+  }, [pathname, setPreviewReferrer, router]);
 
   if (authed === null) {
     return (
@@ -85,6 +143,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     document.cookie = "alifbaa_admin_token=; path=/; max-age=0";
     router.push("/");
   };
+
+  const currentTitle = SECTION_TITLES[pathname] || "لوحة التحكم";
+  const isDashboard = pathname === "/admin";
 
   return (
     <div className="min-h-screen bg-muted/30" dir="rtl">
@@ -149,14 +210,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="border-t border-sidebar-border p-3 space-y-1">
-          <Link
-            href="/"
-            target="_blank"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+          {/* Preview Mode button — opens /admin/preview with referrer tracking */}
+          <button
+            onClick={handleOpenPreview}
+            className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-cyan-brand hover:bg-cyan-brand/10 transition-colors"
           >
-            <ArrowRight className="h-4 w-4" />
+            <Eye className="h-4 w-4" />
             <span>معاينة الموقع</span>
-          </Link>
+          </button>
           <button
             onClick={logout}
             className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
@@ -169,21 +230,64 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <div className="lg:ms-[240px]">
-        <header className="sticky top-0 z-30 h-14 lg:h-16 glass-strong border-b border-border flex items-center justify-between px-4 lg:px-6">
+        <header className="sticky top-0 z-30 h-14 lg:h-16 glass-strong border-b border-border flex items-center justify-between px-4 lg:px-6 gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileOpen(true)}
+              className="lg:hidden p-2 shrink-0"
+              aria-label="القائمة"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+
+            {/* Back button — visible on all admin pages except Dashboard.
+                Uses navigation context to return to last admin page. */}
+            {!isDashboard && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                disabled={!canGoBack}
+                className="gap-1.5 shrink-0 hover:bg-muted"
+                aria-label="رجوع"
+                title={canGoBack ? "الرجوع للصفحة السابقة" : "لا يوجد سابق"}
+              >
+                <ArrowRight className="h-4 w-4" />
+                <span className="hidden sm:inline">رجوع</span>
+              </Button>
+            )}
+
+            <h1 className="font-display font-bold text-sm lg:text-base truncate">{currentTitle}</h1>
+          </div>
+
+          {/* Preview button in topbar (always visible) */}
           <Button
-            variant="ghost"
+            onClick={handleOpenPreview}
+            variant="outline"
             size="sm"
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2"
+            className="gap-1.5 shrink-0"
           >
-            <Menu className="h-5 w-5" />
+            <Eye className="h-4 w-4" />
+            <span className="hidden sm:inline">معاينة الموقع</span>
           </Button>
-          <h1 className="font-display font-bold text-sm lg:text-base">لوحة تحكم ألف باء</h1>
-          <div className="w-9 lg:w-0" />
         </header>
 
         <main className="p-4 lg:p-6 max-w-7xl mx-auto">{children}</main>
       </div>
     </div>
+  );
+}
+
+/**
+ * AdminShell — wraps admin pages with navigation context, sidebar, and auth guard.
+ * Use this as the outermost wrapper for any /admin/* page.
+ */
+export function AdminShell({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminNavigationProvider>
+      <AdminShellInner>{children}</AdminShellInner>
+    </AdminNavigationProvider>
   );
 }
