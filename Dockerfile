@@ -14,8 +14,12 @@ RUN bun run db:generate
 # Build
 RUN bun run build
 
-# Fix: Update DATABASE_URL in the standalone .env to use absolute path
+# CRITICAL: Write .env in standalone directory with absolute DB path
+# This ensures the standalone server uses the same DB as the seed script
 RUN echo 'DATABASE_URL=file:/app/db/custom.db' > /app/.next/standalone/.env
+
+# Also ensure the db file is in the standalone directory (backup)
+RUN cp /app/db/custom.db /app/.next/standalone/db/custom.db 2>/dev/null || true
 
 # Expose port
 ENV PORT=3000

@@ -1,6 +1,9 @@
 import { HomePage } from "@/components/home/home-page";
 import { db } from "@/lib/db";
 
+// Force dynamic rendering — don't cache this page
+export const dynamic = "force-dynamic";
+
 async function getData() {
   try {
     const [

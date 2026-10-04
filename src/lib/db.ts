@@ -1,5 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 
+// Ensure DATABASE_URL is set — use absolute path as fallback
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'file:/app/db/custom.db'
+}
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
