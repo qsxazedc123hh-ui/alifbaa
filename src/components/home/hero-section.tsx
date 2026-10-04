@@ -33,11 +33,17 @@ export function HeroSection({ data, locale }: { data?: HeroData; locale: "ar" | 
 
   return (
     <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32">
-      {/* Decorative background */}
+      {/* Decorative background — premium campus atmosphere */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/40 via-background to-background" />
-        <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl animate-float-slow" />
-        <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-gold/10 blur-3xl" />
+        {/* Atmospheric hero background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-15"
+          style={{ backgroundImage: "url(/brand/campus/hero-bg.png)" }}
+        />
+        {/* Gradient overlays — navy/cyan themed */}
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-soft/30 via-background to-background" />
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-cyan-brand/10 blur-3xl animate-float-slow" />
+        <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-navy/10 blur-3xl" />
         <div className="absolute inset-0 bg-grid opacity-[0.3] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
       </div>
 

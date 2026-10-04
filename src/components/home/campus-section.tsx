@@ -89,9 +89,20 @@ export function CampusSection({ locale }: { locale: "ar" | "en" }) {
 
   return (
     <section className="relative py-20 lg:py-28 overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-muted/20 to-background" />
+      {/* Background: premium campus image + subtle gradient overlay */}
+      {/* Layer 1: Campus image (z-0) */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-70 dark:opacity-50"
+        style={{ backgroundImage: "url(/brand/campus/campus-hero.png)" }}
+      />
+      {/* Layer 2: Subtle gradient fade at edges only */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
+      {/* Layer 3: Cyan + Navy glow accents */}
+      <div className="absolute top-1/4 right-0 h-[500px] w-[500px] rounded-full bg-cyan-brand/20 blur-3xl" />
+      <div className="absolute bottom-1/4 left-0 h-[400px] w-[400px] rounded-full bg-navy/20 blur-3xl" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Content (z-10) */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -99,7 +110,7 @@ export function CampusSection({ locale }: { locale: "ar" | "en" }) {
           transition={{ duration: 0.5 }}
           className="text-center max-w-2xl mx-auto"
         >
-          <span className="inline-block text-xs font-bold tracking-[0.2em] text-primary uppercase mb-3">
+          <span className="inline-block text-xs font-bold tracking-[0.2em] text-cyan-brand uppercase mb-3">
             Alif Baa Campus
           </span>
           <h2 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-foreground text-balance">
