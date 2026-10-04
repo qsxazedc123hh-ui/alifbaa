@@ -18,30 +18,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
-  // Apply theme from localStorage on mount (sync with ThemeToggle)
+  // Listen to system theme changes (auto light/dark based on OS setting)
   useEffect(() => {
-    const stored = localStorage.getItem("alifbaa_theme");
-    if (stored === "dark") {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.add("light");
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-
-  // Sync html dir/lang with cookie locale
-  useEffect(() => {
-    const syncLocale = () => {
-      const match = document.cookie.match(/alifbaa_locale=([^;]+)/);
-      const locale = match?.[1] === "en" ? "en" : "ar";
-      const html = document.documentElement;
-      html.lang = locale;
-      html.dir = locale === "ar" ? "rtl" : "ltr";
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (e: MediaQueryListEvent) => {
+      // Only auto-apply if user hasn't manually overridden
+      const stored = localStorage.getItem("alifbaa_theme_manual");
+      if (stored !== "1") {
+        const html = document.documentElement;
+        html.classList.remove("light", "dark");
+        html.classList.add(e.matches ? "dark" : "light");
+      }
     };
-    syncLocale();
-    window.addEventListener("storage", syncLocale);
-    return () => window.removeEventListener("storage", syncLocale);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   return (

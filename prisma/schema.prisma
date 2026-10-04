@@ -1,7 +1,6 @@
 // =====================================================================
 // ألف باء - منصة تعليمية عراقية
-// Alif Baa - Iraqi Educational Platform
-// Database Schema - PHASE 1
+// Database Schema - v2 (One Page + Trash + Multi-WhatsApp + Messages)
 // =====================================================================
 
 generator client {
@@ -25,40 +24,23 @@ model AdminUser {
   role         String   @default("ADMIN") // ADMIN | SUPER_ADMIN
   isActive     Boolean  @default(true)
   lastLoginAt  DateTime?
+  sessionDurationMins Int @default(60) // configurable session duration
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
 // =====================================================================
-// 2) Brand Identity (Dynamic Visual Identity)
+// 2) Brand Identity (Logos + Backgrounds only — NO color editing)
 // =====================================================================
 
 model BrandAsset {
   id        String   @id @default(cuid())
-  key       String   @unique // logo | logo_dark | logo_light | favicon | ...
+  key       String   @unique // logo | logo_dark | logo_light | favicon | bg_light | bg_dark
   label     String
-  mediaId   String?  // reference to MediaItem
+  mediaId   String?
   url       String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model BrandColor {
-  id        String   @id @default(cuid())
-  key       String   @unique // primary | secondary | accent | background | ...
-  label     String
-  value     String   // hex or oklch
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model BrandSetting {
-  id           String   @id @default(cuid())
-  key          String   @unique // typography | borderRadius | buttonStyle | cardStyle | shadow | ...
-  label        String
-  value        String   // JSON-encoded value
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 }
 
 // =====================================================================
@@ -69,14 +51,15 @@ model MediaItem {
   id         String   @id @default(cuid())
   name       String
   altText    String?
-  category   String   @default("GENERAL") // LOGOS | BACKGROUNDS | CAMPUS | VIDEOS | REELS | CLASSES | SUBJECTS | APP_ASSETS | GENERAL
+  category   String   @default("GENERAL") // LOGOS | BACKGROUNDS | CAMPUS | VIDEOS | GAMES | NEWS | APPS | IMAGES | GENERAL
   mimeType   String
-  size       Int      @default(0) // bytes
+  size       Int      @default(0)
   width      Int?
   height     Int?
   url        String
   thumbnailUrl String?
-  tags       String?  // comma separated
+  duration   Int?     // for videos in seconds
+  tags       String?
   metadata   String?  // JSON-encoded extra metadata
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -85,122 +68,129 @@ model MediaItem {
 }
 
 // =====================================================================
-// 4) Homepage CMS (Dynamic Sections)
+// 4) Campus Items (icons inside the campus — content manageable, design fixed)
 // =====================================================================
 
-model HomePageSection {
-  id         String   @id @default(cuid())
-  key        String   @unique // hero | campus | services | grades | smart_battle | videos | app_download | contact
-  titleAr    String
-  titleEn    String
-  visible    Boolean  @default(true)
-  order      Int      @default(0)
-  data       String   // JSON-encoded section payload
-  updatedAt  DateTime @updatedAt
-  createdAt  DateTime @default(now())
-
-  @@index([order])
-}
-
-// =====================================================================
-// 5) Classes & Subjects
-// =====================================================================
-
-model Grade {
+model CampusItem {
   id          String   @id @default(cuid())
-  slug        String   @unique
-  nameAr      String
-  nameEn      String
-  descriptionAr String?
-  descriptionEn String?
-  coverMediaId String?
-  icon        String?
+  key         String   @unique // smart_battle | videos | news | about | download | contact
+  label       String   // اسم العنصر (عربي)
+  iconKey     String?  // اسم أيقونة جاهزة من المكتبة
+  customMediaId String? // رفع أيقونة/صورة خاصة
+  customUrl   String?  // url مباشر (fallback)
+  sectionKey  String?  // القسم الداخلي الذي يفتحه (يتم scroll إليه)
   order       Int      @default(0)
   visible     Boolean  @default(true)
+  inBottomNav Boolean  @default(false) // يظهر في Bottom Navigation
+  bottomNavOrder Int @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  subjects    Subject[]
-
   @@index([order])
-}
-
-model Subject {
-  id          String   @id @default(cuid())
-  gradeId     String
-  slug        String
-  nameAr      String
-  nameEn      String
-  descriptionAr String?
-  descriptionEn String?
-  coverMediaId String?
-  icon        String?
-  color       String?
-  order       Int      @default(0)
-  visible     Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  grade       Grade    @relation(fields: [gradeId], references: [id], onDelete: Cascade)
-
-  @@unique([gradeId, slug])
-  @@index([order])
+  @@index([inBottomNav])
 }
 
 // =====================================================================
-// 6) Smart Battle (صراع الأذكياء) - Promotional Content
+// 5) Campus Backgrounds (multiple, one active)
 // =====================================================================
 
-model SmartBattleSection {
-  id         String   @id @default(cuid())
-  key        String   @unique // intro | points | ranking | prizes | rules
-  titleAr    String
-  titleEn    String
-  contentAr  String
-  contentEn  String
-  mediaId    String?
-  visible    Boolean  @default(true)
-  order      Int      @default(0)
-  updatedAt  DateTime @updatedAt
-  createdAt  DateTime @default(now())
-
-  @@index([order])
+model CampusBackground {
+  id        String   @id @default(cuid())
+  label     String
+  mediaId   String?
+  url       String
+  isActive  Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // =====================================================================
-// 7) Videos & Reels Manager
+// 6) Videos (Smart Battle + General Videos + News Videos)
 // =====================================================================
 
 model Video {
   id           String   @id @default(cuid())
-  titleAr      String
-  titleEn      String
-  descriptionAr String?
-  descriptionEn String?
-  type         String   @default("VIDEO") // REEL | VIDEO | ANNOUNCEMENT | EDUCATIONAL | PROMOTIONAL
-  thumbnailMediaId String?
+  title        String
+  description  String?
+  type         String   @default("VIDEO") // REEL | VIDEO | GAME | EDUCATIONAL | PROMOTIONAL
   videoUrl     String
-  externalUrl  String?
+  thumbnailUrl String?  // auto-generated from video
+  duration     Int?     // seconds
+  size         Int      @default(0) // bytes
+  mimeType     String?
+  section      String   @default("videos") // videos | smart_battle | news
+  newsId       String?  // link to News if type=NEWS_VIDEO
+  newsItems    News[]   // relation back to News (one video can be used in many news)
   tags         String?
-  featured     Boolean  @default(false)
+  featured     Boolean  @default(false) // يظهر في الصفحة الرئيسية
   published    Boolean  @default(true)
-  publishedAt  DateTime @default(now())
   order        Int      @default(0)
+  publishedAt  DateTime @default(now())
+  // Soft delete (Trash)
+  deletedAt    DateTime?
+  deletedBy    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@index([type])
-  @@index([published])
+  @@index([type, published])
+  @@index([section])
   @@index([featured])
+  @@index([deletedAt])
 }
 
 // =====================================================================
-// 8) App Downloads (APK / Future Stores)
+// 7) News (image or video based)
 // =====================================================================
+
+model News {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  contentType  String   @default("IMAGE") // IMAGE | VIDEO
+  imageUrl     String?
+  videoId      String?  // link to Video if contentType=VIDEO
+  video        Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
+  featured     Boolean  @default(false) // أحدث خبر بارز
+  published    Boolean  @default(true)
+  order        Int      @default(0)
+  publishedAt  DateTime @default(now())
+  // Soft delete
+  deletedAt    DateTime?
+  deletedBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([published, featured])
+  @@index([deletedAt])
+  @@unique([videoId])
+}
+
+// =====================================================================
+// 8) App Downloads (multi-link: APK, Play Store, App Store, Web)
+// =====================================================================
+
+model AppLink {
+  id        String   @id @default(cuid())
+  name      String   // اسم الرابط (مثال: تحميل Android)
+  url       String
+  type      String   @default("APK") // APK | PLAY_STORE | APP_STORE | WEB | OTHER
+  icon      String?  // icon key
+  order     Int      @default(0)
+  visible   Boolean  @default(true)
+  // Soft delete
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([visible, order])
+  @@index([deletedAt])
+}
 
 model AppRelease {
   id           String   @id @default(cuid())
-  platform     String   @default("ANDROID") // ANDROID | IOS
+  platform     String   @default("ANDROID")
   version      String
   versionCode  Int      @default(1)
   nameAr       String
@@ -215,80 +205,97 @@ model AppRelease {
   published    Boolean  @default(true)
   isLatest     Boolean  @default(false)
   releasedAt   DateTime @default(now())
+  // Soft delete
+  deletedAt    DateTime?
+  deletedBy    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@index([platform, published, isLatest])
+  @@index([deletedAt])
 }
 
 // =====================================================================
-// 9) Contact Settings
+// 9) WhatsApp Numbers (multi)
 // =====================================================================
 
-model ContactSetting {
+model WhatsAppNumber {
   id        String   @id @default(cuid())
-  key       String   @unique // whatsapp | phone | email | facebook | instagram | tiktok | youtube | telegram | address
-  label     String
-  value     String
-  visible   Boolean  @default(true)
+  name      String   // مثال: الدعم الفني
+  number    String   // +964...
   order     Int      @default(0)
-  updatedAt DateTime @updatedAt
+  visible   Boolean  @default(true)
+  // Soft delete
+  deletedAt DateTime?
+  deletedBy String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([order])
+  @@index([visible, order])
+  @@index([deletedAt])
 }
 
 // =====================================================================
-// 10) SEO Settings
+// 10) Social Links
 // =====================================================================
 
-model SeoSetting {
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String   // FACEBOOK | INSTAGRAM | TIKTOK | YOUTUBE
+  url       String
+  order     Int      @default(0)
+  visible   Boolean  @default(true)
+  // Soft delete
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([visible, order])
+  @@index([deletedAt])
+}
+
+// =====================================================================
+// 11) Contact Messages (from form)
+// =====================================================================
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String   // phone or email
+  message   String
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  // Soft delete
+  deletedAt DateTime?
+  deletedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead])
+  @@index([deletedAt])
+}
+
+// =====================================================================
+// 12) Site Settings (single row)
+// =====================================================================
+
+model SiteSetting {
   id              String   @id @default(cuid())
-  key             String   @unique // meta_title | meta_description | og_image | canonical | sitemap_url | robots_txt
-  valueAr         String?
-  valueEn         String?
+  key             String   @unique // official_domain | welcome_shown | sound_enabled | ...
+  value           String
   updatedAt       DateTime @updatedAt
   createdAt       DateTime @default(now())
 }
 
 // =====================================================================
-// 11) Navigation Manager
-// =====================================================================
-
-model NavItem {
-  id         String   @id @default(cuid())
-  labelAr    String
-  labelEn    String
-  href       String
-  icon       String?
-  visible    Boolean  @default(true)
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([order])
-}
-
-// =====================================================================
-// 12) General Site Settings
-// =====================================================================
-
-model SiteSetting {
-  id        String   @id @default(cuid())
-  key       String   @unique // site_name | default_lang | default_theme | ...
-  value     String
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-}
-
-// =====================================================================
-// 13) Audit Log (Admin Activity)
+// 13) Audit Log
 // =====================================================================
 
 model AuditLog {
   id        String   @id @default(cuid())
   adminId   String?
-  action    String   // CREATE | UPDATE | DELETE | LOGIN | LOGOUT
+  action    String
   module    String
   entityId  String?
   details   String?

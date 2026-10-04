@@ -104,3 +104,52 @@ Stage Summary:
 - ✅ VLM أكد: "خلفية ثلاثية الأبعاد لمبنى حرم جامعي حديث - تصميم زجاجي عصري"
 - ✅ جميع الصور محفوظة في /public/brand/campus/
 - الصور قابلة للاستبدال لاحقاً من Media Library
+
+---
+Task ID: PHASE-2-REBUILD
+Agent: Main (Super Z)
+Task: إعادة بناء شاملة لموقع ألف باء وفق المواصفات الجديدة (One Page + Mobile-First + Long-Press Admin)
+
+Work Log:
+- فحص المشروع الحالي: Next.js 16 + Prisma + shadcn/ui + Navy/Cyan Design System
+- تحديث Database Schema بالكامل:
+  * AdminUser مع sessionDurationMins
+  * CampusItem (icons + bottomNav)
+  * CampusBackground (multi + active)
+  * Video (soft delete + sections)
+  * News (image/video + featured + soft delete)
+  * AppLink (multi-link downloads)
+  * WhatsAppNumber (multi)
+  * SocialLink (Facebook/Instagram/TikTok/YouTube)
+  * ContactMessage (read/unread + soft delete)
+- إزالة نظام اللغات المتعدد — العربية فقط RTL
+- إزالة Theme Toggle الظاهر — auto follow system preference
+- بناء Splash Screen مع welcome animation + light sweep على Campus
+- بناء Header رسمي (بدون profile + بدون زر لغة)
+- بناء Campus Interactive (6 أيقونات + light sweep effect)
+- بناء Bottom Navigation (يختفي عند النزول + More Bottom Sheet)
+- بناء One Page Navigation (scrollspy + smooth scroll + section switching)
+- بناء 6 أقسام داخلية: Smart Battle (Reels), Videos (Reels+Fullscreen), News, About, Download (Bottom Sheet), Contact
+- بناء Long-Press Admin Trigger (password modal)
+- بناء Website Control Center (12 قسم: Identity, Campus, Videos, News, Smart Battle, Download, WhatsApp, Social, Messages, Trash, Security)
+- بناء Video Upload مع Progress (XHR + upload progress)
+- بناء Trash System (soft delete + restore + permanent delete)
+- بناء Password Settings (change + session duration)
+- تنظيم Storage: /uploads/{videos,games,news,apps,images,logos,backgrounds}
+- بناء 12 API routes: password-login, verify, contact, videos, news, app-links, whatsapp, social-links, campus-items, campus-backgrounds, messages, trash, password, identity, stats
+- Seed: 6 campus items + 1 campus background + 4 social links + 1 whatsapp + admin
+
+Stage Summary:
+- ✅ الموقع One Page كامل مع 6 أقسام تفاعلية
+- ✅ Mobile-First مع Bottom Navigation ذكي
+- ✅ Splash Screen + Welcome animation
+- ✅ Light sweep effect على Campus
+- ✅ Long-Press للدخول للإعدادات (password only)
+- ✅ Website Control Center بـ12 قسم
+- ✅ Video Upload مع Progress
+- ✅ Trash System كامل
+- ✅ Password Settings + Session duration
+- ✅ Lint نظيف (0 errors, 0 warnings)
+- ✅ جميع الصفحات 200 OK
+- ✅ VLM أكد: تصميم احترافي 9/10، Navy+Cyan مطبق بدقة
+- بيانات الدخول: admin@alifbaa.edu / admin123

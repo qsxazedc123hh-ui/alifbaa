@@ -1,39 +1,56 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 
-/** GET /api/admin/stats — dashboard overview numbers */
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(req: NextRequest) {
+  try {
+    const admin = await verifyAdmin(req);
+    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const [
+      videos,
+      news,
+      smartBattleVideos,
+      appLinks,
+      whatsappNumbers,
+      socialLinks,
+      unreadMessages,
+      trashVideos,
+      trashNews,
+      trashAppLinks,
+      trashWhatsapp,
+      trashSocial,
+      trashMessages,
+    ] = await Promise.all([
+      db.video.count({ where: { deletedAt: null, section: "videos" } }),
+      db.news.count({ where: { deletedAt: null } }),
+      db.video.count({ where: { deletedAt: null, section: "smart_battle" } }),
+      db.appLink.count({ where: { deletedAt: null } }),
+      db.whatsAppNumber.count({ where: { deletedAt: null } }),
+      db.socialLink.count({ where: { deletedAt: null } }),
+      db.contactMessage.count({ where: { isRead: false, deletedAt: null } }),
+      db.video.count({ where: { deletedAt: { not: null } } }),
+      db.news.count({ where: { deletedAt: { not: null } } }),
+      db.appLink.count({ where: { deletedAt: { not: null } } }),
+      db.whatsAppNumber.count({ where: { deletedAt: { not: null } } }),
+      db.socialLink.count({ where: { deletedAt: { not: null } } }),
+      db.contactMessage.count({ where: { deletedAt: { not: null } } }),
+    ]);
+
+    return NextResponse.json({
+      stats: {
+        videos,
+        news,
+        smartBattleVideos,
+        appLinks,
+        whatsappNumbers,
+        socialLinks,
+        unreadMessages,
+        trashItems: trashVideos + trashNews + trashAppLinks + trashWhatsapp + trashSocial + trashMessages,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
-
-  const [videos, grades, media, releases, subjects, sections] = await Promise.all([
-    db.video.count(),
-    db.grade.count(),
-    db.mediaItem.count(),
-    db.appRelease.count({ where: { published: true } }),
-    db.subject.count(),
-    db.homePageSection.count({ where: { visible: true } }),
-  ]);
-
-  const recentVideos = await db.video.findMany({
-    take: 5,
-    orderBy: { createdAt: "desc" },
-    select: { id: true, titleAr: true, titleEn: true, type: true, published: true, createdAt: true },
-  });
-
-  const recentActivity = await db.auditLog.findMany({
-    take: 8,
-    orderBy: { createdAt: "desc" },
-    select: { id: true, action: true, module: true, createdAt: true },
-  });
-
-  return NextResponse.json({
-    stats: { videos, grades, media, releases, subjects, sections },
-    recentVideos,
-    recentActivity,
-  });
 }

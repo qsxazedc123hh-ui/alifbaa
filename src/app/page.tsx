@@ -1,92 +1,74 @@
-import { PublicLayout } from "@/components/site/public-layout";
-import { HeroSection } from "@/components/home/hero-section";
-import { CampusSection } from "@/components/home/campus-section";
-import { ServicesSection } from "@/components/home/services-section";
-import { GradesSection } from "@/components/home/grades-section";
-import { SmartBattleSection } from "@/components/home/smart-battle-section";
-import { VideosSection } from "@/components/home/videos-section";
-import { DownloadSection } from "@/components/home/download-section";
-import { ContactSection } from "@/components/home/contact-section";
+import { HomePage } from "@/components/home/home-page";
 import { db } from "@/lib/db";
-import { cookies } from "next/headers";
-import { defaultLocale, locales, type Locale } from "@/i18n/routing";
 
-async function getSiteData() {
+async function getData() {
   try {
-    const [homepageSections, grades, videos, contactSettings, latestRelease] = await Promise.all([
-      db.homePageSection.findMany({ where: { visible: true }, orderBy: { order: "asc" } }),
-      db.grade.findMany({
-        where: { visible: true },
-        orderBy: { order: "asc" },
-        include: { _count: { select: { subjects: { where: { visible: true } } } } },
+    const [
+      campusItems,
+      campusBackgrounds,
+      smartBattleVideos,
+      generalVideos,
+      news,
+      appLinks,
+      whatsappNumbers,
+      socialLinks,
+      featuredVideos,
+    ] = await Promise.all([
+      db.campusItem.findMany({ orderBy: { order: "asc" } }),
+      db.campusBackground.findMany({ orderBy: { order: "asc" } }),
+      db.video.findMany({
+        where: { published: true, deletedAt: null, section: "smart_battle" },
+        orderBy: [{ featured: "desc" }, { publishedAt: "desc" }],
       }),
       db.video.findMany({
-        where: { published: true },
+        where: { published: true, deletedAt: null, section: "videos" },
         orderBy: [{ featured: "desc" }, { publishedAt: "desc" }],
-        take: 6,
       }),
-      db.contactSetting.findMany({ where: { visible: true } }),
-      db.appRelease.findFirst({
-        where: { published: true, isLatest: true, platform: "ANDROID" },
-        orderBy: { releasedAt: "desc" },
+      db.news.findMany({
+        where: { published: true, deletedAt: null },
+        include: { video: true },
+        orderBy: [{ featured: "desc" }, { publishedAt: "desc" }],
+      }),
+      db.appLink.findMany({ where: { visible: true, deletedAt: null }, orderBy: { order: "asc" } }),
+      db.whatsAppNumber.findMany({ where: { visible: true, deletedAt: null }, orderBy: { order: "asc" } }),
+      db.socialLink.findMany({ where: { visible: true, deletedAt: null }, orderBy: { order: "asc" } }),
+      db.video.findMany({
+        where: { published: true, deletedAt: null, featured: true },
+        orderBy: { publishedAt: "desc" },
+        take: 4,
       }),
     ]);
 
-    const contact: Record<string, string> = {};
-    for (const c of contactSettings) contact[c.key] = c.value;
-
-    const sectionsMap: Record<string, Record<string, unknown>> = {};
-    for (const s of homepageSections) {
-      sectionsMap[s.key] = s.data ? JSON.parse(s.data) : {};
-    }
-
-    // Hydrate videos with thumbnail URLs (lookup from MediaItem)
-    const videoIds = videos.map(v => v.thumbnailMediaId).filter(Boolean) as string[];
-    const mediaItems = videoIds.length > 0
-      ? await db.mediaItem.findMany({ where: { id: { in: videoIds } } })
-      : [];
-    const mediaMap = new Map(mediaItems.map(m => [m.id, m]));
-    const videosWithThumbs = videos.map(v => ({
-      ...v,
-      thumbnailUrl: v.thumbnailMediaId ? mediaMap.get(v.thumbnailMediaId)?.url ?? null : null,
-    }));
+    const activeBg = campusBackgrounds.find((b) => b.isActive) || campusBackgrounds[0] || null;
 
     return {
-      hero: (sectionsMap.hero ?? {}) as Record<string, unknown>,
-      grades,
-      videos: videosWithThumbs,
-      contact,
-      latestRelease,
+      campusItems,
+      campusBackground: activeBg,
+      smartBattleVideos,
+      generalVideos,
+      news,
+      appLinks,
+      whatsappNumbers,
+      socialLinks,
+      featuredVideos,
     };
   } catch (err) {
-    console.error("Homepage data fetch failed:", err);
+    console.error("Failed to fetch home data:", err);
     return {
-      hero: {},
-      grades: [],
-      videos: [],
-      contact: {},
-      latestRelease: null,
+      campusItems: [],
+      campusBackground: null,
+      smartBattleVideos: [],
+      generalVideos: [],
+      news: [],
+      appLinks: [],
+      whatsappNumbers: [],
+      socialLinks: [],
+      featuredVideos: [],
     };
   }
 }
 
-export default async function HomePage() {
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get("alifbaa_locale")?.value as Locale | undefined;
-  const locale: Locale =
-    cookieLocale && locales.includes(cookieLocale) ? cookieLocale : defaultLocale;
-  const data = await getSiteData();
-
-  return (
-    <PublicLayout>
-      <HeroSection data={data.hero as never} locale={locale} />
-      <CampusSection locale={locale} />
-      <ServicesSection />
-      <GradesSection grades={data.grades} locale={locale} />
-      <SmartBattleSection locale={locale} />
-      <VideosSection videos={data.videos} />
-      <DownloadSection release={data.latestRelease} />
-      <ContactSection contact={data.contact} />
-    </PublicLayout>
-  );
+export default async function Page() {
+  const data = await getData();
+  return <HomePage {...data} />;
 }
