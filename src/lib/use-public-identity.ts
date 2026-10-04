@@ -24,6 +24,7 @@ interface IdentityData {
   logoDarkUrl: string | null;
   bgLightUrl: string | null;
   bgDarkUrl: string | null;
+  homepageCenterUrl: string | null;
 }
 
 const EMPTY: IdentityData = {
@@ -31,6 +32,7 @@ const EMPTY: IdentityData = {
   logoDarkUrl: null,
   bgLightUrl: null,
   bgDarkUrl: null,
+  homepageCenterUrl: null,
 };
 
 interface ApiResponse {
@@ -50,6 +52,7 @@ export function usePublicIdentity() {
           logoDarkUrl: json.assets.logo_dark?.url || null,
           bgLightUrl: json.assets.bg_light?.url || null,
           bgDarkUrl: json.assets.bg_dark?.url || null,
+          homepageCenterUrl: json.assets.homepage_center?.url || null,
         };
       } catch {
         return EMPTY;

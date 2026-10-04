@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoMark } from "@/components/site/logo";
+import { usePublicIdentity } from "@/lib/use-public-identity";
 
 interface HeroProps {
   onStart: () => void;
@@ -15,8 +16,15 @@ interface HeroProps {
  * - الشعار النصي
  * - جملة تعريف قصيرة
  * - زر «ابدأ الآن» → يفتح قسم تحميل التطبيق
+ *
+ * العنصر البصري في المنتصف:
+ * - يستخدم "Homepage Center Image" من الإعدادات إن وُجدت
+ * - وإلا fallback إلى LogoMark الافتراضي (SVG)
+ * - مستقل عن شعار الـHeader وشعار الهوية العامة
  */
 export function Hero({ onStart }: HeroProps) {
+  const { homepageCenterUrl } = usePublicIdentity();
+
   return (
     <section className="relative pt-24 pb-12 lg:pt-32 lg:pb-16 overflow-hidden">
       {/* Background atmosphere */}
@@ -32,7 +40,7 @@ export function Hero({ onStart }: HeroProps) {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-        {/* Logo */}
+        {/* Center visual element — Homepage Center Image or default LogoMark */}
         <motion.div
           initial={{ scale: 0.7, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -40,7 +48,18 @@ export function Hero({ onStart }: HeroProps) {
           className="flex justify-center mb-6"
         >
           <div className="relative">
-            <LogoMark size={80} />
+            {homepageCenterUrl ? (
+              /* Custom uploaded image — replaces the default LogoMark */
+              <img
+                src={homepageCenterUrl}
+                alt="ألف باء"
+                className="h-20 w-20 sm:h-24 sm:w-24 object-contain rounded-2xl"
+              />
+            ) : (
+              /* Default SVG LogoMark */
+              <LogoMark size={80} />
+            )}
+            {/* Pulsing cyan ring — stays regardless of image/default */}
             <motion.div
               animate={{ scale: [1, 1.4], opacity: [0.5, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}

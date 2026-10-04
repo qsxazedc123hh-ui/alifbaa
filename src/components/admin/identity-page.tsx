@@ -15,6 +15,7 @@ import {
   AlertCircle,
   FileImage,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useRef, useEffect } from "react";
@@ -32,6 +33,7 @@ const SLOTS = [
   { key: "logo_dark", label: "شعار داكن", desc: "يظهر على الخلفيات الداكنة" },
   { key: "bg_light", label: "خلفية فاتحة", desc: "خلفية الموقع في الوضع الفاتح" },
   { key: "bg_dark", label: "خلفية داكنة", desc: "خلفية الموقع في الوضع الداكن" },
+  { key: "homepage_center", label: "شعار / صورة واجهة الصفحة الرئيسية", desc: "العنصر البصري في منتصف الـHero — مستقل عن شعار الـHeader" },
 ] as const;
 
 const ALLOWED_MIME = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -59,6 +61,7 @@ export function IdentityPage() {
     logo_dark: { status: "empty", selectedFile: null, previewUrl: null, errorMsg: null },
     bg_light: { status: "empty", selectedFile: null, previewUrl: null, errorMsg: null },
     bg_dark: { status: "empty", selectedFile: null, previewUrl: null, errorMsg: null },
+    homepage_center: { status: "empty", selectedFile: null, previewUrl: null, errorMsg: null },
   });
 
   const { data, isLoading, refetch } = useQuery<{ assets: BrandAsset[] }>({
@@ -116,6 +119,34 @@ export function IdentityPage() {
       toast.error(err.message || "فشل الحفظ");
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const res = await fetch(`/api/admin/identity?key=${key}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      return data;
+    },
+    onSuccess: (_data, key) => {
+      queryClient.invalidateQueries({ queryKey: ["identity"] });
+      queryClient.invalidateQueries({ queryKey: ["public-identity"] });
+      setSlots((prev) => ({
+        ...prev,
+        [key]: { status: "empty", selectedFile: null, previewUrl: null, errorMsg: null },
+      }));
+      toast.success("تم حذف الصورة والعودة إلى الافتراضية");
+      refetch();
+    },
+    onError: () => toast.error("فشل الحذف"),
+  });
+
+  const handleDelete = (key: string) => {
+    if (!confirm("هل تريد حذف هذه الصورة والعودة إلى الافتراضية؟")) return;
+    deleteMutation.mutate(key);
+  };
 
   const handleSelectFile = (key: string, file: File) => {
     // Validate type
@@ -298,28 +329,42 @@ export function IdentityPage() {
                     </span>
                   </label>
                 ) : (
-                  /* Default upload button */
-                  <label className="cursor-pointer block">
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/webp"
-                      className="hidden"
-                      disabled={state.status === "saving"}
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleSelectFile(slot.key, f);
-                        e.target.value = "";
-                      }}
-                    />
-                    <span
-                      className={`flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs font-medium hover:border-cyan-brand/40 hover:bg-muted/30 transition-colors ${
-                        state.status === "saving" ? "opacity-50 pointer-events-none" : ""
-                      }`}
-                    >
-                      <Upload className="h-3.5 w-3.5" />
-                      {savedUrl ? "تغيير الصورة" : "رفع صورة"}
-                    </span>
-                  </label>
+                  /* Default state: upload button + delete button (if saved image exists) */
+                  <div className="space-y-2">
+                    <label className="cursor-pointer block">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        className="hidden"
+                        disabled={state.status === "saving"}
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleSelectFile(slot.key, f);
+                          e.target.value = "";
+                        }}
+                      />
+                      <span
+                        className={`flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs font-medium hover:border-cyan-brand/40 hover:bg-muted/30 transition-colors ${
+                          state.status === "saving" ? "opacity-50 pointer-events-none" : ""
+                        }`}
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        {savedUrl ? "تغيير الصورة" : "رفع صورة"}
+                      </span>
+                    </label>
+                    {savedUrl && (
+                      <Button
+                        onClick={() => handleDelete(slot.key)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-1.5 text-destructive hover:bg-destructive/5 hover:text-destructive"
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {deleteMutation.isPending ? "جاري الحذف..." : "حذف الصورة"}
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             </Card>

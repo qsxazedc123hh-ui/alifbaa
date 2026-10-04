@@ -17,7 +17,7 @@ const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-const VALID_KEYS = new Set(["logo_light", "logo_dark", "bg_light", "bg_dark"]);
+const VALID_KEYS = new Set(["logo_light", "logo_dark", "bg_light", "bg_dark", "homepage_center"]);
 
 /** GET /api/admin/identity — list all brand assets */
 export async function GET(req: NextRequest) {

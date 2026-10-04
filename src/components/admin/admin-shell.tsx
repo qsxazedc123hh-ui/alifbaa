@@ -22,6 +22,7 @@ import {
   Menu,
   X,
   Eye,
+  Home,
 } from "lucide-react";
 import { LogoMark } from "@/components/site/logo";
 import { Button } from "@/components/ui/button";
@@ -218,6 +219,15 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
             <Eye className="h-4 w-4" />
             <span>معاينة الموقع</span>
           </button>
+          {/* Return to Homepage — exits admin panel to public site (keeps session) */}
+          <button
+            onClick={() => router.push("/")}
+            className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors"
+          >
+            <Home className="h-4 w-4" />
+            <span>العودة إلى الصفحة الرئيسية</span>
+          </button>
+          {/* Logout — ends admin session completely */}
           <button
             onClick={logout}
             className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
